@@ -16,6 +16,8 @@ namespace MidiEngine {
 #include <alsa/global.h>
 #include <alsa/rawmidi.h>
 #include <signal.h>
+#include <time.h>
+#include <math.h>
 
 class NoteEvaluator {
 public:
@@ -29,7 +31,6 @@ public:
 private:
 	int fd;
 	char verbose;
-	unsigned long long iLastNoteTime;
 };
 
 } /* namespace MidiEngine */
