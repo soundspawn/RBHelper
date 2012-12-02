@@ -21,6 +21,19 @@ void sighandler(int dum) {
 	stop = 1;
 }
 
+int confirm_device_is_streaming(int fd,unsigned char seconds){
+	struct timeval timeout;
+	fd_set set;
+	//Set timeout structure
+	timeout.tv_sec = seconds;
+	timeout.tv_usec = 0;
+	//Set add our fd to the set
+	FD_ZERO(&set);
+	FD_SET(fd, &set);
+	//Expecting positive number if communication is happening
+	return(select(fd + 1,&set,NULL,NULL,&timeout));
+}
+
 int closedevice(int fd){
 	if (verbose) {
 		fprintf(stderr, "Closing\n");
@@ -32,6 +45,7 @@ int closedevice(int fd){
 int main(int argc, char** argv) {
 
 	int closedevice(int);
+	int confirm_device_is_streaming(int,unsigned char);
 
 	int i;
 	unsigned char ch;
@@ -50,8 +64,8 @@ int main(int argc, char** argv) {
 			}
 		}else{
 			//Assume <device>
-			if (i + 1 < argc) {
-				device = argv[++i];
+			if (i + 1 == argc) {
+				device = argv[i];
 				fd = open(device, O_RDWR);
 				continue;
 			}
@@ -62,9 +76,19 @@ int main(int argc, char** argv) {
 		closedevice(fd);
 		return -1;
 	}
+	if(confirm_device_is_streaming(fd,3) < 1){
+		ch = 10;
+		fprintf(stderr, "Device not streaming data, waiting additional %d seconds...\n",ch);
+		if(confirm_device_is_streaming(fd,ch) < 1){
+			fprintf(stderr, "Device is not streaming data, aborting\n");
+			closedevice(fd);
+			return -1;
+		}
+	}
 	if (verbose) {
 		fprintf(stderr, "Using Device: %s\n", device);
 	}
+
 	fprintf(stderr, "Press ctrl-c to stop\n");
 	while (!stop) {
 		if(read(fd, &ch, 1) > 0){
@@ -73,13 +97,13 @@ int main(int argc, char** argv) {
 					fprintf(stderr, "read %02x\n", ch);
 				}
 				if(write(fd, &ch, 1) == -1){
-					fprintf(stderr, "Error writing to device");
+					fprintf(stderr, "Error writing to device\n");
 					closedevice(fd);
 					return -1;
 				}
 			}
 		}else{
-			fprintf(stderr, "Could not read from device");
+			fprintf(stderr, "Could not read from device\n");
 			closedevice(fd);
 			return -1;
 		}
