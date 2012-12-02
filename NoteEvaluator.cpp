@@ -35,7 +35,9 @@ int NoteEvaluator::process_input_as_loop(char* message) {
 	unsigned char iBitCount = 0;
 	unsigned char iColumnWidth;
 	unsigned long long iLastNoteTime = 0;
-	unsigned long long iCurrentNoteTime;
+	unsigned long long iCurrentNoteTime = 0;
+	char verb_buffer[60];
+	char msg_buffer[60];
 	struct timespec time;
 
 	while (1) {
@@ -43,24 +45,33 @@ int NoteEvaluator::process_input_as_loop(char* message) {
 			if (ch != 0xf8 && ch != 0xfe) {
 				if(iBitCount == 0){
 					//iCurrentNoteTime
-					clock_gettime(CLOCK_REALTIME,&time);
+					if(clock_gettime(CLOCK_MONOTONIC,&time) == -1){
+						sprintf(message, "Error getting time\n");
+						return -1;
+					}
 					iLastNoteTime = iCurrentNoteTime;
 					iCurrentNoteTime = time.tv_sec * 1000000000+ time.tv_nsec;
 				}
-				if (verbose) {
+				if (this->verbose) {
 					if(iBitCount == 0){
 						iColumnWidth = 6;
-						fprintf(stderr, "%lu %09lu - ",time.tv_sec,time.tv_nsec);
+						sprintf(msg_buffer, "%lu %09lu - ",time.tv_sec,time.tv_nsec);
+						strcpy(verb_buffer,msg_buffer);
 					}
 					if(iBitCount == 1){
 						if(ch == 0x04){
 							iColumnWidth = 3;
 						}
 					}
-					fprintf(stderr, "%02x ", ch);
+					sprintf(msg_buffer, "%02x ", ch);
+					strcat(verb_buffer,msg_buffer);
 					iBitCount = (iBitCount+1) % iColumnWidth;
 					if(iBitCount == 0){
-						fprintf(stderr, "\n");
+						if(iCurrentNoteTime - iLastNoteTime < 5000000000){
+							sprintf(msg_buffer, "  - % 9lu µs",(iCurrentNoteTime-iLastNoteTime)/1000);
+							strcat(verb_buffer,msg_buffer);
+						}
+						fprintf(stderr, "%s\n",verb_buffer);
 					}
 				}
 				if (write(fd, &ch, 1) == -1) {
