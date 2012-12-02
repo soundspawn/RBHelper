@@ -6,6 +6,7 @@
 #include <alsa/global.h>
 #include <alsa/rawmidi.h>
 #include <signal.h>
+#include "NoteEvaluator.h"
 
 int stop = 0;
 unsigned char verbose = 0;
