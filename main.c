@@ -7,6 +7,9 @@
 #include <alsa/rawmidi.h>
 #include <signal.h>
 
+int stop = 0;
+unsigned char verbose = 0;
+
 static void usage(void) {
 	fprintf(stderr, "usage: RBHelper [options] <device>\n");
 	fprintf(stderr, " options:\n");
@@ -15,8 +18,6 @@ static void usage(void) {
 	fprintf(stderr, "    RBHelper /dev/midi1\n");
 }
 
-int stop = 0;
-unsigned char verbose = 0;
 void sighandler(int dum) {
 	stop = 1;
 }
@@ -38,7 +39,9 @@ int closedevice(int fd){
 	if (verbose) {
 		fprintf(stderr, "Closing\n");
 	}
+	//Close our handle
 	close(fd);
+	//Return success
 	return 1;
 }
 
@@ -51,10 +54,13 @@ int main(int argc, char** argv) {
 	unsigned char ch;
 	char *device = NULL;
 	int fd = -1;
+
+	//No args
 	if (argc == 1) {
 		usage();
-		exit(0);
+		exit(1);
 	}
+
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
 			switch (argv[i][1]) {
@@ -72,9 +78,8 @@ int main(int argc, char** argv) {
 		}
 	}
 	if (fd < 0) {
-		fprintf(stderr, "open %s for input and output failed\n", device);
-		closedevice(fd);
-		return -1;
+		fprintf(stderr, "open %s for input and output failed, aborting\n", device);
+		exit(-1);
 	}
 	if(confirm_device_is_streaming(fd,3) < 1){
 		ch = 10;
@@ -82,7 +87,7 @@ int main(int argc, char** argv) {
 		if(confirm_device_is_streaming(fd,ch) < 1){
 			fprintf(stderr, "Device is not streaming data, aborting\n");
 			closedevice(fd);
-			return -1;
+			exit(-1);
 		}
 	}
 	if (verbose) {
@@ -99,15 +104,15 @@ int main(int argc, char** argv) {
 				if(write(fd, &ch, 1) == -1){
 					fprintf(stderr, "Error writing to device\n");
 					closedevice(fd);
-					return -1;
+					exit(-1);
 				}
 			}
 		}else{
 			fprintf(stderr, "Could not read from device\n");
 			closedevice(fd);
-			return -1;
+			exit(-1);
 		}
 	}
 	closedevice(fd);
-	return 0;
+	return(0);
 }
