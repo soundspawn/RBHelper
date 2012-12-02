@@ -10,6 +10,7 @@
 namespace MidiEngine {
 
 NoteEvaluator::NoteEvaluator() {
+	strcpy(this->signals,"\0\0\0\0\0\0");
 }
 
 NoteEvaluator::~NoteEvaluator() {
