@@ -1,0 +1,5 @@
+#Eclipse Settings
+.settings/*
+
+#Release Folder
+Release/*
