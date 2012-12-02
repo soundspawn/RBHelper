@@ -27,7 +27,6 @@ public:
 	int set_fd(int);
 	int set_verbose(char);
 	int process_input_as_loop(char*);
-	void sighandler(int);
 private:
 	int fd;
 	char verbose;
