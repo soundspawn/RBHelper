@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
 	char *device = NULL;
 	int fd = -1;
 	int status;
-	char* message;
+	char* message = NULL;
 
 	//No args
 	if (argc == 1) {
