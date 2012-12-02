@@ -1,15 +1,11 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <alsa/asoundlib.h>
-#include <alsa/asoundef.h>
-#include <alsa/global.h>
-#include <alsa/rawmidi.h>
-#include <signal.h>
 #include "NoteEvaluator.h"
 
-int stop = 0;
+using namespace std;
+
 unsigned char verbose = 0;
+MidiEngine::NoteEvaluator* eng;
 
 static void usage(void) {
 	fprintf(stderr, "usage: RBHelper [options] <device>\n");
@@ -17,10 +13,6 @@ static void usage(void) {
 	fprintf(stderr, "    -v: verbose mode\n");
 	fprintf(stderr, "\n example:\n");
 	fprintf(stderr, "    RBHelper /dev/midi1\n");
-}
-
-void sighandler(int dum) {
-	stop = 1;
 }
 
 int confirm_device_is_streaming(int fd,unsigned char seconds){
@@ -55,6 +47,8 @@ int main(int argc, char** argv) {
 	unsigned char ch;
 	char *device = NULL;
 	int fd = -1;
+	int status;
+	char* message;
 
 	//No args
 	if (argc == 1) {
@@ -94,26 +88,21 @@ int main(int argc, char** argv) {
 	if (verbose) {
 		fprintf(stderr, "Using Device: %s\n", device);
 	}
-
+	//Create our engine and hand it control
 	fprintf(stderr, "Press ctrl-c to stop\n");
-	while (!stop) {
-		if(read(fd, &ch, 1) > 0){
-			if (ch != 0xf8 && ch != 0xfe) {
-				if (verbose) {
-					fprintf(stderr, "read %02x\n", ch);
-				}
-				if(write(fd, &ch, 1) == -1){
-					fprintf(stderr, "Error writing to device\n");
-					closedevice(fd);
-					exit(-1);
-				}
-			}
-		}else{
-			fprintf(stderr, "Could not read from device\n");
-			closedevice(fd);
-			exit(-1);
+	eng = new MidiEngine::NoteEvaluator();
+	eng->set_fd(fd);
+	eng->set_verbose(verbose);
+	status = eng->process_input_as_loop(message);
+	closedevice(fd);
+	if(status == -1){
+		//Error, display it
+		fprintf(stderr, "Error: %s\n",message);
+	}else{
+		fprintf(stdout, "%s\n",message);
+		if(status == 1){
+			exit(0);
 		}
 	}
-	closedevice(fd);
-	return(0);
+	exit(status);
 }
