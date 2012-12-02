@@ -10,6 +10,10 @@
 namespace MidiEngine {
 
 NoteEvaluator::NoteEvaluator() {
+	unsigned char j;
+	for(j=0;j<SIGNAL_HISTORY_SIZE;j++){
+		strcpy(this->old_signals[j],"\0\0\0\0\0\0");
+	}
 	strcpy(this->signals,"\0\0\0\0\0\0");
 }
 
@@ -42,6 +46,16 @@ int NoteEvaluator::new_note(){
 		sprintf(this->verb_timestamp, "% 9lu %09lu - ",time.tv_sec,time.tv_nsec);
 	}
 	strcpy(this->signals,"\0\0\0\0\0\0");
+	return 1;
+}
+
+int NoteEvaluator::save_to_history(){
+	unsigned char j;
+
+	for(j = SIGNAL_HISTORY_SIZE-2; j >= 0; j--) {
+		strcpy(this->old_signals[j+1],this->old_signals[j]);
+	}
+	strcpy(this->old_signals[0],this->signals);
 	return 1;
 }
 
@@ -91,6 +105,7 @@ int NoteEvaluator::process_input_as_loop(char* message) {
 						fprintf(stderr, "%s\n",verb_buffer);
 					}
 					//Pass the signal for processing
+					this->save_to_history();
 				}
 				/*if (write(fd, &ch, 1) == -1) {
 					sprintf(message, "Error writing to device\n");

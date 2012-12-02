@@ -10,6 +10,8 @@
 
 namespace MidiEngine {
 
+#define SIGNAL_HISTORY_SIZE 5
+
 #include <stdio.h>
 #include <alsa/asoundlib.h>
 #include <alsa/asoundef.h>
@@ -34,12 +36,13 @@ private:
 	unsigned long long iLastNoteTime;
 	unsigned long long iCurrentNoteTime;
 	char signals[7];
-	char old_signals[3][7];
+	char old_signals[SIGNAL_HISTORY_SIZE][7];
 
 	int new_note();
 	int print_output(char*);
 	int add_signal(char);
 	int signal_to_verb(char*);
+	int save_to_history();
 };
 
 } /* namespace MidiEngine */
