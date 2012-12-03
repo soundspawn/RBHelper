@@ -79,6 +79,7 @@ int NoteEvaluator::process_input_as_loop(char* message) {
 					iColumnWidth = 6;
 				}
 				if(iBitCount == 1){
+					//Hi Hat depressed (single 99 04 7F message)
 					if(ch == 0x04){
 						iColumnWidth = 3;
 					}
