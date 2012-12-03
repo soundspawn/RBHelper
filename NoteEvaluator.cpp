@@ -65,7 +65,7 @@ int NoteEvaluator::process_input_as_loop(char* message) {
 	unsigned char iBitCount = 0;
 	unsigned char iColumnWidth;
 	char verb_buffer[60];
-	char msg_buffer[60];
+	char msg_buffer[10];
 
 	while (1) {
 		if (read(this->fd, &ch, 1) > 0) {
