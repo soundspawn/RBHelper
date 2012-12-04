@@ -33,4 +33,22 @@ int MidiSong::add_note(unsigned long delay,char signal[7]){
 	return 1;
 }
 
+int MidiSong::cut_note(){
+	MidiNote* delme;
+
+	delme = this->track_start;
+	this->track_start = this->track_start->next;
+	free(delme);
+	return 1;
+}
+
+char* MidiSong::play_note(){
+	static char signal[7];
+
+	usleep(this->track_start->delay);
+	strcpy(signal,this->track_start->signal);
+	this->cut_note();
+	return((char*)signal);
+}
+
 } /* namespace MidiEngine */
