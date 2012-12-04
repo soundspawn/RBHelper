@@ -77,11 +77,11 @@ int main(int argc, char** argv) {
 	}
 	eng = new MidiEngine::NoteEvaluator();
 	eng->set_verbose(verbose);
+	fd = open(device, O_RDWR);
 	if(debug){
 		eng->set_input(INPUT_SOURCE_DEBUG);
 		fprintf(stderr, "***DEBUG MODE***\n");
 	}else{
-		fd = open(device, O_RDWR);
 		if (fd < 0) {
 			fprintf(stderr, "open %s for input and output failed, aborting\n", device);
 			exit(-1);
@@ -98,10 +98,9 @@ int main(int argc, char** argv) {
 		if (verbose) {
 			fprintf(stderr, "Using Device: %s\n", device);
 		}
-		//Create our engine and hand it control
-		fprintf(stderr, "Press ctrl-c to stop\n");
-		eng->set_fd(fd);
 	}
+	fprintf(stderr, "Press ctrl-c to stop\n");
+	eng->set_fd(fd);
 	status = eng->process_input_as_loop(message);
 	if(!debug){
 		closedevice(fd);
