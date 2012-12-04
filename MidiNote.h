@@ -20,11 +20,10 @@ public:
 	virtual ~MidiNote();
 
 	MidiNote* next;
-private:
-	void create(unsigned long,char[7]);
-
 	unsigned long delay;
 	char signal[7];
+private:
+	void create(unsigned long,char[7]);
 };
 
 } /* namespace MidiEngine */
