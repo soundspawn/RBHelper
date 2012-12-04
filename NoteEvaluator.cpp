@@ -151,9 +151,11 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
 						fprintf(stderr, "%s\n",verb_buffer);
 					}
 					//Pass the signal for processing
-					if (write(fd, this->signals, 5) == -1) {
-						sprintf(message, "Error writing to device\n");
-						return -1;
+					if(fd > 0){
+						if (write(fd, this->signals, 5) == -1) {
+							sprintf(message, "Error writing to device\n");
+							return -1;
+						}
 					}
 					this->save_to_history();
 				}
