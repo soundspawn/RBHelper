@@ -83,7 +83,7 @@ int NoteEvaluator::get_input(unsigned char& ch){
 			ch = 0x99;
 			break;
 		case 2:
-			ch = 0x25;
+			ch = 0x26;
 			break;
 		case 3:
 			ch = 0x2E;
@@ -92,7 +92,7 @@ int NoteEvaluator::get_input(unsigned char& ch){
 			ch = 0x99;
 			break;
 		case 5:
-			ch = 0x25;
+			ch = 0x26;
 			break;
 		case 0:
 			ch = 0x00;
@@ -151,12 +151,12 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
 						fprintf(stderr, "%s\n",verb_buffer);
 					}
 					//Pass the signal for processing
+					if (write(fd, this->signals, 5) == -1) {
+						sprintf(message, "Error writing to device\n");
+						return -1;
+					}
 					this->save_to_history();
 				}
-				/*if (write(fd, &ch, 1) == -1) {
-					sprintf(message, "Error writing to device\n");
-					return -1;
-				}*/
 			}
 		}
 	}
