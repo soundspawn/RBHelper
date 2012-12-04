@@ -8,14 +8,6 @@
 #ifndef NOTEEVALUATOR_H_
 #define NOTEEVALUATOR_H_
 
-namespace MidiEngine {
-
-#define SIGNAL_HISTORY_SIZE 5
-
-#define INPUT_SOURCE_FD 0
-#define INPUT_SOURCE_DEBUG 1
-
-#include <stdio.h>
 #include <alsa/asoundlib.h>
 #include <alsa/asoundef.h>
 #include <alsa/global.h>
@@ -23,6 +15,14 @@ namespace MidiEngine {
 #include <signal.h>
 #include <time.h>
 #include <math.h>
+#include "MidiNote.h"
+
+namespace MidiEngine {
+
+#define SIGNAL_HISTORY_SIZE 5
+
+#define INPUT_SOURCE_FD 0
+#define INPUT_SOURCE_DEBUG 1
 
 class NoteEvaluator {
 public:
