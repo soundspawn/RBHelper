@@ -37,6 +37,15 @@ int NoteEvaluator::set_verbose(char verbose){
 
 int NoteEvaluator::set_input(unsigned char source){
 	this->input = source;
+	if(source == INPUT_SOURCE_DEBUG){
+		//Create a song
+		this->track = new MidiSong();
+		this->track->add_note(0,0x25);
+		this->track->add_note(800000,0x28);
+		this->track->add_note(800000,0x25);
+		this->track->add_note(400000,0x25);
+		this->track->add_note(400000,0x28);
+	}
 	return 1;
 }
 
@@ -66,8 +75,6 @@ int NoteEvaluator::save_to_history(){
 }
 
 int NoteEvaluator::get_input(unsigned char& ch){
-	static unsigned char len = 0;
-
 	if(this->input == INPUT_SOURCE_FD){
 		if (read(this->fd, &ch, 1) > 0) {
 			return 1;
@@ -76,29 +83,7 @@ int NoteEvaluator::get_input(unsigned char& ch){
 		}
 	}
 	if(this->input == INPUT_SOURCE_DEBUG){
-		len++;
-		len = len % 6;
-		switch(len){
-		case 1:
-			ch = 0x99;
-			break;
-		case 2:
-			ch = 0x26;
-			break;
-		case 3:
-			ch = 0x2E;
-			break;
-		case 4:
-			ch = 0x99;
-			break;
-		case 5:
-			ch = 0x26;
-			break;
-		case 0:
-			ch = 0x00;
-			usleep(200000);
-			break;
-		}
+		ch = this->track->get_stream();
 		return 1;
 	}
 	return 0;

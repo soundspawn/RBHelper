@@ -16,14 +16,14 @@ namespace MidiEngine {
 class MidiNote {
 public:
 	MidiNote();
-	MidiNote(unsigned long,char[7]);
+	MidiNote(unsigned long,unsigned char*);
 	virtual ~MidiNote();
 
 	MidiNote* next;
 	unsigned long delay;
-	char signal[7];
+	unsigned char signal[7];
 private:
-	void create(unsigned long,char[7]);
+	void create(unsigned long,unsigned char[7]);
 };
 
 } /* namespace MidiEngine */

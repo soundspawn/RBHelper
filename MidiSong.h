@@ -17,9 +17,11 @@ class MidiSong {
 public:
 	MidiSong();
 	virtual ~MidiSong();
-	int add_note(unsigned long,char[7]);
-	char* play_note();
+	unsigned char* note_to_signal(unsigned char);
+	int add_note(unsigned long,unsigned char);
+	unsigned char* play_note();
 	int cut_note();
+	unsigned char get_stream();
 private:
 	MidiNote* track_start;
 	MidiNote* track_end;
