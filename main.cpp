@@ -5,6 +5,7 @@
 using namespace std;
 
 unsigned char verbose = 0;
+unsigned char debug = 0;
 MidiEngine::NoteEvaluator* eng;
 
 static void usage(void) {
@@ -62,39 +63,49 @@ int main(int argc, char** argv) {
 			case 'v':
 				verbose = 1;
 				break;
+			case 'd':
+				debug = 1;
+				break;
 			}
 		}else{
 			//Assume <device>
 			if (i + 1 == argc) {
 				device = argv[i];
-				fd = open(device, O_RDWR);
 				continue;
 			}
 		}
 	}
-	if (fd < 0) {
-		fprintf(stderr, "open %s for input and output failed, aborting\n", device);
-		exit(-1);
-	}
-	if(confirm_device_is_streaming(fd,3) < 1){
-		ch = 10;
-		fprintf(stderr, "Device not streaming data, waiting additional %d seconds...\n",ch);
-		if(confirm_device_is_streaming(fd,ch) < 1){
-			fprintf(stderr, "Device is not streaming data, aborting\n");
-			closedevice(fd);
+	eng = new MidiEngine::NoteEvaluator();
+	eng->set_verbose(verbose);
+	if(debug){
+		eng->set_input(INPUT_SOURCE_DEBUG);
+		fprintf(stderr, "***DEBUG MODE***\n");
+	}else{
+		fd = open(device, O_RDWR);
+		if (fd < 0) {
+			fprintf(stderr, "open %s for input and output failed, aborting\n", device);
 			exit(-1);
 		}
+		if(confirm_device_is_streaming(fd,3) < 1){
+			ch = 10;
+			fprintf(stderr, "Device not streaming data, waiting additional %d seconds...\n",ch);
+			if(confirm_device_is_streaming(fd,ch) < 1){
+				fprintf(stderr, "Device is not streaming data, aborting\n");
+				closedevice(fd);
+				exit(-1);
+			}
+		}
+		if (verbose) {
+			fprintf(stderr, "Using Device: %s\n", device);
+		}
+		//Create our engine and hand it control
+		fprintf(stderr, "Press ctrl-c to stop\n");
+		eng->set_fd(fd);
 	}
-	if (verbose) {
-		fprintf(stderr, "Using Device: %s\n", device);
-	}
-	//Create our engine and hand it control
-	fprintf(stderr, "Press ctrl-c to stop\n");
-	eng = new MidiEngine::NoteEvaluator();
-	eng->set_fd(fd);
-	eng->set_verbose(verbose);
 	status = eng->process_input_as_loop(message);
-	closedevice(fd);
+	if(!debug){
+		closedevice(fd);
+	}
 	if(status == -1){
 		//Error, display it
 		fprintf(stderr, "Error: %s\n",message);
