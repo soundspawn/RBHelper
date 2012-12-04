@@ -15,7 +15,7 @@
 #include <signal.h>
 #include <time.h>
 #include <math.h>
-#include "MidiNote.h"
+#include "MidiSong.h"
 
 namespace MidiEngine {
 
@@ -42,6 +42,7 @@ private:
 	unsigned char input;
 	char signals[7];
 	char old_signals[SIGNAL_HISTORY_SIZE][7];
+	MidiSong* track;
 
 	int new_note();
 	int print_output(char*);

@@ -16,12 +16,17 @@ MidiNote::MidiNote() {
 	this->create(0,default_signal);
 }
 
-MidiNote::~MidiNote() {
-	free(this);
+MidiNote::MidiNote(unsigned long delay,char signal[7]){
+	this->create(delay,signal);
 }
 
-void MidiNote::create(unsigned long delay,char* signal){
+MidiNote::~MidiNote() {
+}
 
+void MidiNote::create(unsigned long delay,char signal[7]){
+	this->delay = delay;
+	strcpy(this->signal,signal);
+	this->next = NULL;
 }
 
 } /* namespace MidiEngine */
