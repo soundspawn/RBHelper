@@ -15,6 +15,7 @@ NoteEvaluator::NoteEvaluator() {
 		strcpy(this->old_signals[j],"\0\0\0\0\0\0");
 	}
 	strcpy(this->signals,"\0\0\0\0\0\0");
+	this->input = INPUT_SOURCE_FD;//default fd device;
 }
 
 NoteEvaluator::~NoteEvaluator() {
@@ -31,6 +32,11 @@ int NoteEvaluator::set_fd(int fd) {
 
 int NoteEvaluator::set_verbose(char verbose){
 	this->verbose = verbose;
+	return 1;
+}
+
+int NoteEvaluator::set_input(unsigned char source){
+	this->input = source;
 	return 1;
 }
 
@@ -52,14 +58,53 @@ int NoteEvaluator::new_note(){
 int NoteEvaluator::save_to_history(){
 	unsigned char j;
 
-	for(j = SIGNAL_HISTORY_SIZE-2; j >= 0; j--) {
+	for(j = SIGNAL_HISTORY_SIZE-2; j < 254; j--) {
 		strcpy(this->old_signals[j+1],this->old_signals[j]);
 	}
 	strcpy(this->old_signals[0],this->signals);
 	return 1;
 }
 
-int NoteEvaluator::process_input_as_loop(char* message) {
+int NoteEvaluator::get_input(unsigned char& ch){
+	static unsigned char len = 0;
+
+	if(this->input == INPUT_SOURCE_FD){
+		if (read(this->fd, &ch, 1) > 0) {
+			return 1;
+		} else {
+			return -1;
+		}
+	}
+	if(this->input == INPUT_SOURCE_DEBUG){
+		len++;
+		len = len % 6;
+		switch(len){
+		case 1:
+			ch = 0x99;
+			break;
+		case 2:
+			ch = 0x25;
+			break;
+		case 3:
+			ch = 0x2E;
+			break;
+		case 4:
+			ch = 0x99;
+			break;
+		case 5:
+			ch = 0x25;
+			break;
+		case 0:
+			ch = 0x00;
+			usleep(200000);
+			break;
+		}
+		return 1;
+	}
+	return 0;
+}
+
+int NoteEvaluator::process_input_as_loop(char*& message) {
 
 	unsigned char ch;
 	unsigned char iBitCount = 0;
@@ -68,7 +113,7 @@ int NoteEvaluator::process_input_as_loop(char* message) {
 	char msg_buffer[20];
 
 	while (1) {
-		if (read(this->fd, &ch, 1) > 0) {
+		if(this->get_input(ch) == 1){
 			if (ch != 0xf8 && ch != 0xfe) {
 				//Reset
 				if(iBitCount == 0){
