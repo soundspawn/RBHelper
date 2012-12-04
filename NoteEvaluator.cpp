@@ -49,7 +49,7 @@ int NoteEvaluator::new_note(){
 	this->iLastNoteTime = this->iCurrentNoteTime;
 	this->iCurrentNoteTime = time.tv_sec * 1000000000+ time.tv_nsec;
 	if(this->verbose){
-		sprintf(this->verb_timestamp, "% 9lu %09lu - ",time.tv_sec,time.tv_nsec);
+		sprintf(this->verb_timestamp, "% 9ld %09ld - ",time.tv_sec,time.tv_nsec);
 	}
 	strncpy(this->signals,"\0\0\0\0\0\0",6);
 	return 1;
@@ -145,7 +145,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
 							iColumnWidth++;
 						}
 						if(this->iCurrentNoteTime - this->iLastNoteTime < 5000000000){
-							sprintf(msg_buffer," - % 9lu µs",(this->iCurrentNoteTime-this->iLastNoteTime)/1000);
+							sprintf(msg_buffer," - % 9lld µs",(this->iCurrentNoteTime-this->iLastNoteTime)/1000);
 							strcat(verb_buffer,msg_buffer);
 						}
 						fprintf(stderr, "%s\n",verb_buffer);
