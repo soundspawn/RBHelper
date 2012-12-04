@@ -113,9 +113,6 @@ int NoteEvaluator::process_input_as_loop(char* message) {
 					return -1;
 				}*/
 			}
-		} else {
-			sprintf(message, "Could not read from device\n");
-			return -1;
 		}
 	}
 	return 1;
