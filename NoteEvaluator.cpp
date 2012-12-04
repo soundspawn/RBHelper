@@ -45,7 +45,7 @@ int NoteEvaluator::new_note(){
 	if(this->verbose){
 		sprintf(this->verb_timestamp, "% 9lu %09lu - ",time.tv_sec,time.tv_nsec);
 	}
-	strcpy(this->signals,"\0\0\0\0\0\0");
+	strncpy(this->signals,"\0\0\0\0\0\0",6);
 	return 1;
 }
 
