@@ -16,6 +16,7 @@
 #include <time.h>
 #include <math.h>
 #include "MidiSong.h"
+#include "SongReader.h"
 
 namespace MidiEngine {
 

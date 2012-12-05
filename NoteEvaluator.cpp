@@ -42,15 +42,20 @@ int NoteEvaluator::set_verbose(char verbose){
 }
 
 int NoteEvaluator::set_input(unsigned char source){
+
+	SongReader* song;
+	char* song_filename = new char[50];
+
 	this->input = source;
 	if(source == INPUT_SOURCE_DEBUG){
 		//Create a song
 		this->track = new MidiSong();
-		this->track->add_note(0,0x25);
-		this->track->add_note(800000,0x28);
-		this->track->add_note(800000,0x25);
-		this->track->add_note(400000,0x25);
-		this->track->add_note(400000,0x28);
+		song = new SongReader();
+		strcpy(song_filename,"./debugsong.song");
+		if(this->verbose){
+			fprintf(stderr, "Opening %s for playback\n",song_filename);
+		}
+		song->read_file(song_filename,this->track);
 	}
 	return 1;
 }
