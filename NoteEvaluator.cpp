@@ -27,6 +27,8 @@ NoteEvaluator::NoteEvaluator() {
 }
 
 NoteEvaluator::~NoteEvaluator() {
+	delete(this->song_filename);
+	delete(this->track);
 }
 
 int NoteEvaluator::set_fd(int fd) {
@@ -65,7 +67,7 @@ int NoteEvaluator::set_input(unsigned char source,char* song_filename){
 	}
 	if(source == INPUT_SOURCE_PLAYER || source == INPUT_SOURCE_DEBUG){
 		//Create a song
-		free(this->track);
+		delete(this->track);
 		this->track = new MidiSong();
 		song = new SongReader();
 		if(this->verbose){

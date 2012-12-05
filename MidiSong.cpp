@@ -20,7 +20,7 @@ MidiSong::~MidiSong() {
 	delme = this->track_start;
 	while(delme != NULL){
 		next = delme->next;
-		free(delme);
+		delete(delme);
 		delme = next;
 	}
 }
@@ -67,7 +67,7 @@ int MidiSong::cut_note(){
 	}
 	this->track_start = this->track_start->next;
 	if(delme != NULL){
-		free(delme);
+		delete(delme);
 	}
 	if(this->track_start == NULL){
 		this->add_note(800000,0x25,0x30);
