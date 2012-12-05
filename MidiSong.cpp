@@ -71,14 +71,6 @@ int MidiSong::cut_note(){
 	}
 	if(this->track_start == NULL){
 		this->add_note(800000,0x25);
-		this->add_note(0,0x33);
-		this->add_note(800000,0x28);
-		this->add_note(0,0x33);
-		this->add_note(800000,0x25);
-		this->add_note(0,0x33);
-		this->add_note(400000,0x25);
-		this->add_note(400000,0x28);
-		this->add_note(0,0x33);
 	}
 	return 1;
 }
