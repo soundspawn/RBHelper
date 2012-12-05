@@ -29,6 +29,7 @@ NoteEvaluator::NoteEvaluator() {
 
 NoteEvaluator::~NoteEvaluator() {
     delete (this->song_filename);
+    delete (this->output);
     delete (this->track);
 }
 
@@ -80,6 +81,11 @@ int NoteEvaluator::set_input(unsigned char source, char* song_filename) {
 }
 
 int NoteEvaluator::set_output(char* output) {
+    if(this->output != NULL){
+        delete(this->output);
+    }
+    this->output = new SongWriter();
+    this->output->set_file(output);
     return 1;
 }
 
@@ -178,6 +184,10 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                         }
                         fprintf(stderr, "%s\n", verb_buffer);
                     }
+                    //If recording, save the entry
+                    if(this->output != NULL){
+                        this->save_note();
+                    }
                     //Pass the signal for processing
                     if (fd > 0) {
                         if (write(fd, this->signals, 5) == -1) {
@@ -191,6 +201,18 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
         }
     }
     return 1;
+}
+
+int NoteEvaluator::save_note(){
+
+    unsigned long long delay;
+    delay = this->iCurrentNoteTime - this->iLastNoteTime;
+
+    if(this->output != NULL){
+        this->output->write_note(delay,this->signals);
+        return 1;
+    }
+    return 0;
 }
 
 } /* namespace MidiEngine */

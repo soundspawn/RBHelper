@@ -17,6 +17,7 @@
 #include <math.h>
 #include "MidiSong.h"
 #include "SongReader.h"
+#include "SongWriter.h"
 
 namespace MidiEngine {
 
@@ -49,6 +50,7 @@ private:
     unsigned long long old_notetimes[SIGNAL_HISTORY_SIZE];
     char* song_filename;
     MidiSong* track;
+    SongWriter* output;
 
     int new_note();
     int print_output(char*);
@@ -56,6 +58,7 @@ private:
     int signal_to_verb(char*);
     int save_to_history();
     int get_input(unsigned char&);
+    int save_note();
 };
 
 } /* namespace MidiEngine */
