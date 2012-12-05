@@ -78,6 +78,10 @@ int NoteEvaluator::set_input(unsigned char source,char* song_filename){
 	return 1;
 }
 
+int NoteEvaluator::set_output(char* output){
+	return 1;
+}
+
 int NoteEvaluator::new_note(){
 	struct timespec time;
 	unsigned char i;

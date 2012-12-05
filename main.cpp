@@ -14,6 +14,8 @@ static void usage(void) {
 	fprintf(stderr, "    -v: verbose mode\n");
 	fprintf(stderr, "    -d: debug mode (plays a debugging track)\n");
 	fprintf(stderr, "    -f <file>: play a specified file\n");
+	fprintf(stderr, "    -o <file>: record input to the specified file\n");
+	//fprintf(stderr, "    -b <seconds>: break the recording into a separate file after <seconds> delay\n");
 	fprintf(stderr, "\n example:\n");
 	fprintf(stderr, "    RBHelper /dev/midi1\n");
 }
@@ -53,6 +55,7 @@ int main(int argc, char** argv) {
 	int status;
 	char* message = NULL;
 	char* filename = NULL;
+	char* output = NULL;
 
 	//No args
 	if (argc == 1) {
@@ -74,6 +77,9 @@ int main(int argc, char** argv) {
 			case 'f':
 				filename = argv[++i];
 				break;
+			case 'o':
+				output = argv[++i];
+				break;
 			}
 		}else{
 			//Assume <device>
@@ -86,6 +92,9 @@ int main(int argc, char** argv) {
 	eng->set_verbose(verbose);
 	if(filename != NULL){
 		eng->set_input(INPUT_SOURCE_PLAYER,filename);
+	}
+	if(output != NULL){
+		eng->set_output(output);
 	}
 	fd = open(device, O_RDWR);
 	if(debug){
