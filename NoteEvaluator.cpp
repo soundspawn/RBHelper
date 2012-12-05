@@ -11,10 +11,16 @@ namespace MidiEngine {
 
 NoteEvaluator::NoteEvaluator() {
 	unsigned char j;
+	unsigned char i;
+
 	for(j=0;j<SIGNAL_HISTORY_SIZE;j++){
-		strcpy(this->old_signals[j],"\0\0\0\0\0\0");
+		for(i=0;i<7;i++){
+			this->old_signals[j][i] = 0;
+		}
 	}
-	strcpy(this->signals,"\0\0\0\0\0\0");
+	for(i=0;i<7;i++){
+		this->signals[i] = 0;
+	}
 	this->input = INPUT_SOURCE_FD;//default fd device;
 }
 
@@ -51,6 +57,7 @@ int NoteEvaluator::set_input(unsigned char source){
 
 int NoteEvaluator::new_note(){
 	struct timespec time;
+	unsigned char i;
 
 	if(clock_gettime(CLOCK_MONOTONIC,&time) == -1){
 		return -1;
@@ -60,17 +67,24 @@ int NoteEvaluator::new_note(){
 	if(this->verbose){
 		sprintf(this->verb_timestamp, "% 9ld %09ld - ",time.tv_sec,time.tv_nsec);
 	}
-	strncpy(this->signals,"\0\0\0\0\0\0",6);
+	for(i=0;i<7;i++){
+		this->signals[i] = 0;
+	}
 	return 1;
 }
 
 int NoteEvaluator::save_to_history(){
 	unsigned char j;
+	unsigned char i;
 
 	for(j = SIGNAL_HISTORY_SIZE-2; j < 254; j--) {
-		strcpy(this->old_signals[j+1],this->old_signals[j]);
+		for(i=0;i<7;i++){
+			this->old_signals[j+1][i] = this->old_signals[j][i];
+		}
 	}
-	strcpy(this->old_signals[0],this->signals);
+	for(i=0;i<7;i++){
+		this->old_signals[0][i] = this->signals[i];
+	}
 	return 1;
 }
 

@@ -40,8 +40,8 @@ private:
 	unsigned long long iLastNoteTime;
 	unsigned long long iCurrentNoteTime;
 	unsigned char input;
-	char signals[7];
-	char old_signals[SIGNAL_HISTORY_SIZE][7];
+	unsigned char signals[7];
+	unsigned char old_signals[SIGNAL_HISTORY_SIZE][7];
 	MidiSong* track;
 
 	int new_note();
