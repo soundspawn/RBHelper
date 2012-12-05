@@ -12,6 +12,8 @@ static void usage(void) {
 	fprintf(stderr, "usage: RBHelper [options] <device>\n");
 	fprintf(stderr, " options:\n");
 	fprintf(stderr, "    -v: verbose mode\n");
+	fprintf(stderr, "    -d: debug mode (plays a debugging track)\n");
+	fprintf(stderr, "    -f <file>: play a specified file\n");
 	fprintf(stderr, "\n example:\n");
 	fprintf(stderr, "    RBHelper /dev/midi1\n");
 }
@@ -50,12 +52,15 @@ int main(int argc, char** argv) {
 	int fd = -1;
 	int status;
 	char* message = NULL;
+	char* filename = NULL;
 
 	//No args
 	if (argc == 1) {
 		usage();
 		exit(1);
 	}
+
+	eng = new MidiEngine::NoteEvaluator();
 
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
@@ -66,6 +71,9 @@ int main(int argc, char** argv) {
 			case 'd':
 				debug = 1;
 				break;
+			case 'f':
+				filename = argv[++i];
+				break;
 			}
 		}else{
 			//Assume <device>
@@ -75,8 +83,10 @@ int main(int argc, char** argv) {
 			}
 		}
 	}
-	eng = new MidiEngine::NoteEvaluator();
 	eng->set_verbose(verbose);
+	if(filename != NULL){
+		eng->set_input(INPUT_SOURCE_PLAYER,filename);
+	}
 	fd = open(device, O_RDWR);
 	if(debug){
 		eng->set_input(INPUT_SOURCE_DEBUG);

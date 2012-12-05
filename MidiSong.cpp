@@ -25,11 +25,11 @@ MidiSong::~MidiSong() {
 	}
 }
 
-unsigned char* MidiSong::note_to_signal(unsigned char note){
+unsigned char* MidiSong::note_to_signal(unsigned char note, unsigned char velocity){
 	static unsigned char signal[7];
 	signal[0] = 0x99;
 	signal[1] = note;
-	signal[2] = 0x30;
+	signal[2] = velocity;
 	signal[3] = 0x99;
 	signal[4] = note;
 	signal[5] = 0x00;
@@ -37,12 +37,12 @@ unsigned char* MidiSong::note_to_signal(unsigned char note){
 	return(signal);
 }
 
-int MidiSong::add_note(unsigned long delay,unsigned char note){
+int MidiSong::add_note(unsigned long delay,unsigned char note,unsigned char velocity){
 	static unsigned char signal[7];
 	unsigned char* tsig;
 	unsigned char i;
 
-	tsig = this->note_to_signal(note);
+	tsig = this->note_to_signal(note,velocity);
 	for(i=0;i<7;i++){
 		signal[i] = tsig[i];
 	}
@@ -70,7 +70,7 @@ int MidiSong::cut_note(){
 		free(delme);
 	}
 	if(this->track_start == NULL){
-		this->add_note(800000,0x25);
+		this->add_note(800000,0x25,0x30);
 	}
 	return 1;
 }

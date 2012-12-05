@@ -8,6 +8,7 @@
 #ifndef SONGREADER_H_
 #define SONGREADER_H_
 
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <string>

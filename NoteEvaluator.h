@@ -24,6 +24,7 @@ namespace MidiEngine {
 
 #define INPUT_SOURCE_FD 0
 #define INPUT_SOURCE_DEBUG 1
+#define INPUT_SOURCE_PLAYER 2
 
 class NoteEvaluator {
 public:
@@ -34,6 +35,7 @@ public:
 	int set_verbose(char);
 	int process_input_as_loop(char*&);
 	int set_input(unsigned char);
+	int set_input(unsigned char,char*);
 private:
 	int fd;
 	char verbose;
@@ -43,6 +45,7 @@ private:
 	unsigned char input;
 	unsigned char signals[7];
 	unsigned char old_signals[SIGNAL_HISTORY_SIZE][7];
+	char* song_filename;
 	MidiSong* track;
 
 	int new_note();

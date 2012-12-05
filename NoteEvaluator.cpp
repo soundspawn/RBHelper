@@ -21,6 +21,8 @@ NoteEvaluator::NoteEvaluator() {
 	for(i=0;i<7;i++){
 		this->signals[i] = 0;
 	}
+	this->song_filename = new char[50];
+	this->song_filename[0] = 0x00;
 	this->input = INPUT_SOURCE_FD;//default fd device;
 }
 
@@ -42,20 +44,34 @@ int NoteEvaluator::set_verbose(char verbose){
 }
 
 int NoteEvaluator::set_input(unsigned char source){
+	char* temp_filename = new char[1];
+	temp_filename[0] = 0x00;
+	return(this->set_input(source,temp_filename));
+}
+
+int NoteEvaluator::set_input(unsigned char source,char* song_filename){
 
 	SongReader* song;
-	char* song_filename = new char[50];
 
 	this->input = source;
 	if(source == INPUT_SOURCE_DEBUG){
+		if(strlen(this->song_filename) == 0){
+			strcpy(this->song_filename,"./debugsong.song");
+		}else{
+			return 1;
+		}
+	}else{
+		strcpy(this->song_filename,song_filename);
+	}
+	if(source == INPUT_SOURCE_PLAYER || source == INPUT_SOURCE_DEBUG){
 		//Create a song
+		free(this->track);
 		this->track = new MidiSong();
 		song = new SongReader();
-		strcpy(song_filename,"./debugsong.song");
 		if(this->verbose){
-			fprintf(stderr, "Opening %s for playback\n",song_filename);
+			fprintf(stderr, "Opening %s for playback\n",this->song_filename);
 		}
-		song->read_file(song_filename,this->track);
+		song->read_file(this->song_filename,this->track);
 	}
 	return 1;
 }
@@ -100,8 +116,7 @@ int NoteEvaluator::get_input(unsigned char& ch){
 		} else {
 			return -1;
 		}
-	}
-	if(this->input == INPUT_SOURCE_DEBUG){
+	}else{
 		ch = this->track->get_stream();
 		return 1;
 	}
