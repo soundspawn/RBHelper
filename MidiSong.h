@@ -15,16 +15,16 @@ namespace MidiEngine {
 
 class MidiSong {
 public:
-	MidiSong();
-	virtual ~MidiSong();
-	unsigned char* note_to_signal(unsigned char,unsigned char);
-	int add_note(unsigned long,unsigned char,unsigned char);
-	unsigned char* play_note();
-	int cut_note();
-	unsigned char get_stream();
+    MidiSong();
+    virtual ~MidiSong();
+    unsigned char* note_to_signal(unsigned char, unsigned char);
+    int add_note(unsigned long, unsigned char, unsigned char);
+    unsigned char* play_note();
+    int cut_note();
+    unsigned char get_stream();
 private:
-	MidiNote* track_start;
-	MidiNote* track_end;
+    MidiNote* track_start;
+    MidiNote* track_end;
 };
 
 } /* namespace MidiEngine */

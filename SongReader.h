@@ -18,10 +18,10 @@ namespace MidiEngine {
 
 class SongReader {
 public:
-	SongReader();
-	virtual ~SongReader();
+    SongReader();
+    virtual ~SongReader();
 
-	int read_file(char*,MidiSong*);
+    int read_file(char*, MidiSong*);
 };
 
 } /* namespace MidiEngine */

@@ -28,33 +28,33 @@ namespace MidiEngine {
 
 class NoteEvaluator {
 public:
-	NoteEvaluator();
-	virtual ~NoteEvaluator();
+    NoteEvaluator();
+    virtual ~NoteEvaluator();
 
-	int set_fd(int);
-	int set_verbose(char);
-	int process_input_as_loop(char*&);
-	int set_input(unsigned char);
-	int set_input(unsigned char,char*);
-	int set_output(char*);
+    int set_fd(int);
+    int set_verbose(char);
+    int process_input_as_loop(char*&);
+    int set_input(unsigned char);
+    int set_input(unsigned char, char*);
+    int set_output(char*);
 private:
-	int fd;
-	char verbose;
-	char verb_timestamp[40];
-	unsigned long long iLastNoteTime;
-	unsigned long long iCurrentNoteTime;
-	unsigned char input;
-	unsigned char signals[7];
-	unsigned char old_signals[SIGNAL_HISTORY_SIZE][7];
-	char* song_filename;
-	MidiSong* track;
+    int fd;
+    char verbose;
+    char verb_timestamp[40];
+    unsigned long long iLastNoteTime;
+    unsigned long long iCurrentNoteTime;
+    unsigned char input;
+    unsigned char signals[7];
+    unsigned char old_signals[SIGNAL_HISTORY_SIZE][7];
+    char* song_filename;
+    MidiSong* track;
 
-	int new_note();
-	int print_output(char*);
-	int add_signal(char);
-	int signal_to_verb(char*);
-	int save_to_history();
-	int get_input(unsigned char&);
+    int new_note();
+    int print_output(char*);
+    int add_signal(char);
+    int signal_to_verb(char*);
+    int save_to_history();
+    int get_input(unsigned char&);
 };
 
 } /* namespace MidiEngine */
