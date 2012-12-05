@@ -17,6 +17,7 @@ NoteEvaluator::NoteEvaluator() {
         for (i = 0; i < 7; i++) {
             this->old_signals[j][i] = 0;
         }
+        this->old_notetimes[j] = 0;
     }
     for (i = 0; i < 7; i++) {
         this->signals[i] = 0;
@@ -109,10 +110,12 @@ int NoteEvaluator::save_to_history() {
         for (i = 0; i < 7; i++) {
             this->old_signals[j + 1][i] = this->old_signals[j][i];
         }
+        this->old_notetimes[j+1] = this->old_notetimes[j];
     }
     for (i = 0; i < 7; i++) {
         this->old_signals[0][i] = this->signals[i];
     }
+    this->old_notetimes[0] = this->iCurrentNoteTime;
     return 1;
 }
 

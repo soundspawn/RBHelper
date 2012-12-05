@@ -46,6 +46,7 @@ private:
     unsigned char input;
     unsigned char signals[7];
     unsigned char old_signals[SIGNAL_HISTORY_SIZE][7];
+    unsigned long long old_notetimes[SIGNAL_HISTORY_SIZE];
     char* song_filename;
     MidiSong* track;
 
