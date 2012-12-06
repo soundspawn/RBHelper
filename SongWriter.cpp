@@ -35,14 +35,16 @@ int SongWriter::write_note(unsigned long long delay,unsigned char* signal){
     char* note = new char[3];
     char* vel = new char[3];
 
+    //Round the delay
+    delay /= 1000;
+    delay *= 1000;
+
     sprintf(del,"%llu ",delay);
     sprintf(note,"%d ",signal[1]);
     sprintf(vel,"%d ",signal[2]);
 
-    if(this->file.is_open()){
-        this->file.write(del,10);
-        this->file.write(note,3);
-        this->file.write(vel,3);
+    if(this->file.is_open() && this->file.good()){
+        this->file << del << note << vel << std::endl;
         return 1;
     }
     return 0;

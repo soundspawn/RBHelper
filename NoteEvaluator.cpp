@@ -206,7 +206,10 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
 int NoteEvaluator::save_note(){
 
     unsigned long long delay;
-    delay = this->iCurrentNoteTime - this->iLastNoteTime;
+    delay = (this->iCurrentNoteTime - this->iLastNoteTime) / 1000;
+    if(this->iLastNoteTime == 0){
+        delay = 0;
+    }
 
     if(this->output != NULL){
         this->output->write_note(delay,this->signals);
