@@ -38,8 +38,7 @@ unsigned char* MidiSong::note_to_signal(unsigned char note,
     return (signal);
 }
 
-int MidiSong::add_note(unsigned long delay, unsigned char note,
-        unsigned char velocity) {
+int MidiSong::add_note(unsigned long delay, unsigned char note,unsigned char velocity) {
     static unsigned char signal[7];
     unsigned char* tsig;
     unsigned char i;
