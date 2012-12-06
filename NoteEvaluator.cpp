@@ -146,6 +146,12 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
     unsigned char iColumnWidth;
     char verb_buffer[60];
     char msg_buffer[20];
+    unsigned char sending;
+    static unsigned long long delay = 0;
+    static unsigned long long threshold = 0;
+    unsigned int j;
+    unsigned char midibuffer[7];
+    static unsigned long long temp = 0;
 
     while (1) {
         if (this->get_input(ch) == 1) {
@@ -174,6 +180,90 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                 this->signals[iBitCount] = ch;
                 iBitCount = (iBitCount + 1) % iColumnWidth;
                 if (iBitCount == 0) {
+                    //Pass the signal for processing
+                    sending = 1;
+                    if (this->fd > 0) {
+                        delay = (this->iCurrentNoteTime - this->iLastNoteTime) / 1000;
+                        //Hi Hat Splash
+                        if((this->signals[1] == 0x2E || this->signals[1] == 0x2F) && this->signals[2] < 30){
+                            sending = 0;
+                        }
+                        //Hi Hat Pedal press
+                        if(this->signals[0] == 0xB9 && this->signals[1] == 0x04){
+                            sending = 0;
+                        }
+                        //Ride double hits
+                        if(this->signals[1] == 0x33 && this->signals[2] < 75){
+                            sending = 0;
+                        }
+                        //Cymbal/hihat Doubles
+                        if((this->signals[1] == 0x2E || this->signals[1] == 0x2F || this->signals[1] == 0x31 || this->signals[1] == 0x33)){
+                            threshold = 80000;//Time threshold
+                            /*if(this->signals[2] > 150){
+                                threshold = 40000;
+                            }*/
+                            for(j=0;j<SIGNAL_HISTORY_SIZE;j++){
+                                //If the delay is already greater than our threshold, it's not a double hit
+                                if(delay >= threshold){
+                                    break;
+                                }
+                                //If the old signal was a hit hat hit
+                                if(this->old_signals[j][1] == this->signals[1]){
+                                    sending = 0;
+                                    break;
+                                }
+                                //If it was not within a hi hat hit, increase the delay by it's delay (making future checks harder because there were longer ago)
+                                if(j==(SIGNAL_HISTORY_SIZE-1)){
+                                    break;
+                                }
+                                temp = (this->iCurrentNoteTime-this->old_notetimes[j+1])/1000;
+                                delay = delay+temp;
+                            }
+                        }
+                        //Any double hits
+                        threshold = 9000;//Time threshold
+                        for(j=0;j<SIGNAL_HISTORY_SIZE;j++){
+                            //If the delay is already greater than our threshold, it's not a double hit
+                            if(delay >= threshold){
+                                break;
+                            }
+                            //If the old signal was a hit hat hit
+                            if(this->old_signals[j][1] == this->signals[1]){
+                                sending = 0;
+                                break;
+                            }
+                            //If it was not within a hi hat hit, increase the delay by it's delay (making future checks harder because there were longer ago)
+                            if(j==(SIGNAL_HISTORY_SIZE-1)){
+                                break;
+                            }
+                            temp = (this->iCurrentNoteTime-this->old_notetimes[j+1])/1000;
+                            delay = delay+temp;
+                        }
+
+
+                        //If the note is valid, pass it through
+                        if(sending){
+                            for(j=0;j<6;j++){
+                                midibuffer[j] = this->signals[j];
+                            }
+                            //Substitution
+                            if(this->signals[1] == 0x2F){
+                                midibuffer[1] = 0x33;
+                                midibuffer[4] = 0x33;
+                            }
+                            if (write(fd, midibuffer, 5) == -1) {
+                                sprintf(message, "Error writing to device\n");
+                                return -1;
+                            }
+                        }
+                    }
+                    if(sending){
+                        //If recording, save the entry
+                        if(this->output != NULL){
+                            this->save_note();
+                        }
+                        this->save_to_history();
+                    }
                     if (this->verbose) {
                         while (iColumnWidth < 6) {
                             strcat(verb_buffer, "   ");
@@ -183,20 +273,11 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                             sprintf(msg_buffer, " - % 9lld µs",(this->iCurrentNoteTime - this->iLastNoteTime) / 1000);
                             strcat(verb_buffer, msg_buffer);
                         }
+                        if(sending == 0){
+                            fprintf(stderr,"    ");
+                        }
                         fprintf(stderr, "%s\n", verb_buffer);
                     }
-                    //If recording, save the entry
-                    if(this->output != NULL){
-                        this->save_note();
-                    }
-                    //Pass the signal for processing
-                    if (fd > 0) {
-                        if (write(fd, this->signals, 5) == -1) {
-                            sprintf(message, "Error writing to device\n");
-                            return -1;
-                        }
-                    }
-                    this->save_to_history();
                 }
             }
         }
