@@ -37,7 +37,7 @@ public:
     int process_input_as_loop(char*&);
     int set_input(unsigned char);
     int set_input(unsigned char, char*);
-    int set_output(char*);
+    int set_output(char*,unsigned int);
 private:
     int fd;
     char verbose;

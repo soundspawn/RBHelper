@@ -80,12 +80,13 @@ int NoteEvaluator::set_input(unsigned char source, char* song_filename) {
     return 1;
 }
 
-int NoteEvaluator::set_output(char* output) {
+int NoteEvaluator::set_output(char* output,unsigned int newfile_timer) {
     if(this->output != NULL){
         delete(this->output);
     }
     this->output = new SongWriter();
     this->output->set_file(output);
+    this->output->set_newfile_timer(newfile_timer);
     return 1;
 }
 
