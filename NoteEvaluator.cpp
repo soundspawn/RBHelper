@@ -149,7 +149,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
     unsigned char sending;
     static unsigned long long delay = 0;
     static unsigned long long threshold = 0;
-    unsigned int j;
+    static unsigned int j;
     unsigned char midibuffer[7];
     static unsigned long long temp = 0;
 
@@ -185,7 +185,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                     if (this->fd > 0) {
                         delay = (this->iCurrentNoteTime - this->iLastNoteTime) / 1000;
                         //Hi Hat Splash
-                        if((this->signals[1] == 0x2E || this->signals[1] == 0x2F) && this->signals[2] < 30){
+                        if(this->signals[1] == 0x2E && this->old_signals[0][1] == 0x04 && delay < 3000){
                             sending = 0;
                         }
                         //Hi Hat Pedal press
@@ -198,9 +198,9 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                         }
                         //Cymbal/hihat Doubles
                         if((this->signals[1] == 0x2E || this->signals[1] == 0x2F || this->signals[1] == 0x31 || this->signals[1] == 0x33)){
-                            threshold = 80000;//Time threshold
-                            /*if(this->signals[2] > 150){
-                                threshold = 40000;
+                            threshold = 90000;//Time threshold
+                            /*if(this->signals[1] == 0x2E || this->signals[1] == 0x2F){
+                                threshold = 80000;
                             }*/
                             for(j=0;j<SIGNAL_HISTORY_SIZE;j++){
                                 //If the delay is already greater than our threshold, it's not a double hit
@@ -216,7 +216,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                                 if(j==(SIGNAL_HISTORY_SIZE-1)){
                                     break;
                                 }
-                                temp = (this->iCurrentNoteTime-this->old_notetimes[j+1])/1000;
+                                temp = (this->iCurrentNoteTime-this->old_notetimes[j+1]) / 1000;
                                 delay = delay+temp;
                             }
                         }
@@ -257,14 +257,14 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                             }
                         }
                     }
-                    if(sending){
+                    if(sending || (this->signals[1] == 0x04 && this->signals[0] != 0xB9)){
                         //If recording, save the entry
-                        if(this->output != NULL){
+                        if(this->output != NULL && this->signals[1] != 0x04){
                             this->save_note();
                         }
                         this->save_to_history();
                     }
-                    if (this->verbose) {
+                    if (this->verbose && sending) {
                         while (iColumnWidth < 6) {
                             strcat(verb_buffer, "   ");
                             iColumnWidth++;
