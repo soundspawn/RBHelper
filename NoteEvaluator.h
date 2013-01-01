@@ -21,7 +21,7 @@
 
 namespace MidiEngine {
 
-#define SIGNAL_HISTORY_SIZE 5
+#define SIGNAL_HISTORY_SIZE 10
 
 #define INPUT_SOURCE_FD 0
 #define INPUT_SOURCE_DEBUG 1
