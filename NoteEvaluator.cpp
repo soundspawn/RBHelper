@@ -188,9 +188,6 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                         if(this->signals[1] == 0x2E && this->old_signals[0][1] == 0x04 && delay < 2500){
                             sending = 0;
                         }
-                        if(sending && this->signals[1] == 0x2E && delay < 2500){
-                            fprintf(stderr,"HEY %x",this->old_signals[0][1]);
-                        }
                         //Hi Hat Sensitivity
                         if(this->signals[1] == 0x2E && this->signals[2] < 0x30){
                             sending = 0;
@@ -206,9 +203,6 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                         //Cymbal/hihat Doubles
                         if(sending && (this->signals[1] == 0x2E || this->signals[1] == 0x2F || this->signals[1] == 0x31 || this->signals[1] == 0x33)){
                             threshold = 60000;//Time threshold
-                            /*if(this->signals[1] == 0x2E || this->signals[1] == 0x2F){
-                                threshold = 40000;
-                            }*/
                             for(j=0;j<SIGNAL_HISTORY_SIZE;j++){
                                 //If the delay is already greater than our threshold, it's not a double hit
                                 if(delay >= threshold){
