@@ -197,7 +197,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                             sending = 0;
                         }
                         //Ride double hits
-                        if(this->signals[1] == 0x33 && this->signals[2] < 75){
+                        if(this->signals[1] == 0x33 && this->signals[2] < 55){
                             sending = 0;
                         }
                         //Cymbal/hihat Doubles
