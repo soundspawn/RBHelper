@@ -189,7 +189,11 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                             sending = 0;
                         }
                         //Hi Hat Sensitivity
-                        if(this->signals[1] == 0x2E && this->signals[2] < 0x30){
+                        if((this->signals[1] == 0x2E || this->signals[1] == 0x2F) && this->signals[2] < 0x30){
+                            sending = 0;
+                        }
+                        //Crash Sensitivity
+                        if(this->signals[1] == 0x31 && this->signals[2] < 0x38){
                             sending = 0;
                         }
                         //Hi Hat Pedal press
