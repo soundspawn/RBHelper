@@ -152,9 +152,14 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
     static unsigned int j;
     unsigned char midibuffer[7];
     static unsigned long long temp = 0;
+    unsigned char nextSig = 0;
 
     while (1) {
-        if (this->get_input(ch) == 1) {
+        if (nextSig > 0 || this->get_input(ch) == 1) {
+            if(nextSig > 0){
+                ch = nextSig;
+                nextSig = 0x00;
+            }
             if (ch != 0xf8 && ch != 0xfe) {
                 //Reset
                 if (iBitCount == 0) {
@@ -169,6 +174,16 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                     if (ch == 0x04) {
                         iColumnWidth = 3;
                     }
+                }
+                if ((iBitCount == 0 || iBitCount == 3) && ch != 0x99){
+                    nextSig = ch;
+                    ch = 0x99;
+                }
+                if(iBitCount == 4 && ch == 0x99){
+                    continue;
+                }
+                if((iBitCount == 1 || iBitCount == 4) && ch == 0x90){
+                    continue;
                 }
                 if (this->verbose) {
                     if (iBitCount == 0) {
