@@ -151,6 +151,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
     static unsigned long long threshold = 0;
     static unsigned int j;
     unsigned char midibuffer[7];
+    unsigned char midibuffer2[7];
     static unsigned long long temp = 0;
     unsigned char nextSig = 0;
 
@@ -270,10 +271,26 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                                 midibuffer[1] = 0x33;
                                 midibuffer[4] = 0x33;
                             }
+                            //If we somehow got two velocity notes on the same signal, split them
+                            if(midibuffer[5] > 0x00 && midibuffer[1] != 0xB9){
+                                midibuffer2[0] = midibuffer[3];
+                                midibuffer2[1] = midibuffer[4];
+                                midibuffer2[2] = midibuffer[5];
+                                midibuffer2[3] = 0x00;
+                                midibuffer2[4] = 0x00;
+                                midibuffer2[5] = 0x00;
+                                midibuffer[3] = 0x00;
+                                midibuffer[4] = 0x00;
+                                midibuffer[5] = 0x00;
+                            }else{
+                                memset(midibuffer2,0,7);
+                            }
                             if (write(fd, midibuffer, 5) == -1) {
                                 sprintf(message, "Error writing to device\n");
                                 return -1;
                             }
+                            write(fd, midibuffer2, 5);midibuffer[4] = 0x00;
+                            midibuffer[5] = 0x00;
                         }
                     //}
                     if(sending || (this->signals[1] == 0x04)){
