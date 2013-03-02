@@ -200,7 +200,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                     //if (this->fd > 0) {
                         delay = (this->iCurrentNoteTime - this->iLastNoteTime) / 1000;
                         //Hi Hat Splash
-                        if(this->signals[1] == 0x2E && this->old_signals[0][1] == 0x04 && delay < 2500){
+                        if(this->signals[1] == 0x2E && (this->old_signals[0][2] == 0x04 || this->old_signals[0][1] == 0x04) && delay < 3000){
                             sending = 0;
                         }
                         //Hi Hat Sensitivity
