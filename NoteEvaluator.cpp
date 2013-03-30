@@ -271,6 +271,16 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                                 midibuffer[1] = 0x33;
                                 midibuffer[4] = 0x33;
                             }
+                            //If the on/off notes are not paired, we need to take whichever is "on" and make it the first
+                            //  Then "off" it with the second impulse
+                            if(midibuffer[1] != midibuffer[4]){
+                                //See if the first is an "on"
+                                if(midibuffer[2] > 0x00 && midibuffer[5] == 0x00){
+                                    //This means the first half is "on" and the second half is an off for another note...
+                                    //Set the second half to an off for this note
+                                    midibuffer[4] = midibuffer[1];
+                                }
+                            }
                             //If we somehow got two velocity notes on the same signal, split them
                             if(midibuffer[5] > 0x00 && midibuffer[1] != 0xB9){
                                 midibuffer2[0] = midibuffer[3];
