@@ -221,7 +221,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                             sending = 0;
                         }
                         //Cymbal/hihat Doubles
-                        if(sending && (this->signals[1] == 0x2E || this->signals[1] == 0x2F || this->signals[1] == 0x31 || this->signals[1] == 0x33)){
+                        if(sending && (this->signals[1] == 0x2E || this->signals[1] == 0x2F || this->signals[1] == 0x30 || this->signals[1] == 0x31 || this->signals[1] == 0x33)){
                             threshold = 60000;//Time threshold
                             for(j=0;j<SIGNAL_HISTORY_SIZE;j++){
                                 //If the delay is already greater than our threshold, it's not a double hit
@@ -267,7 +267,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                                 midibuffer[j] = this->signals[j];
                             }
                             //Substitution
-                            if(this->signals[1] == 0x2F){
+                            if(this->signals[1] == 0x2F || this->signals[1] == 0x30){
                                 midibuffer[1] = 0x33;
                                 midibuffer[4] = 0x33;
                             }
