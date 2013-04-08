@@ -201,15 +201,19 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                     //if (this->fd > 0) {
                         delay = (this->iCurrentNoteTime - this->iLastNoteTime) / 1000;
                         //Hi Hat Splash
-                        if(this->signals[1] == 0x2E && (this->old_signals[0][2] == 0x04 || this->old_signals[0][1] == 0x04) && delay < 3000){
+                        if(this->signals[1] == 0x15 && (this->old_signals[0][2] == 0x04 || this->old_signals[0][1] == 0x04) && delay < 3000){
                             sending = 0;
                         }
                         //Hi Hat Sensitivity
-                        if((this->signals[1] == 0x2E || this->signals[1] == 0x2F) && this->signals[2] < 0x37){
+                        if((this->signals[1] == 0x15 || this->signals[1] == 0x1A) && this->signals[2] < 0x37){
                             sending = 0;
                         }
                         //Crash Sensitivity
                         if(this->signals[1] == 0x31 && this->signals[2] < 0x38){
+                            sending = 0;
+                        }
+                        //Splash Sensitivity
+                        if(this->signals[1] == 0x34 && this->signals[2] < 0x38){
                             sending = 0;
                         }
                         //Hi Hat Pedal press
@@ -221,7 +225,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                             sending = 0;
                         }
                         //Cymbal/hihat Doubles
-                        if(sending && (this->signals[1] == 0x2E || this->signals[1] == 0x2F || this->signals[1] == 0x30 || this->signals[1] == 0x31 || this->signals[1] == 0x33)){
+                        if(sending && (this->signals[1] == 0x15 || this->signals[1] == 0x1A || this->signals[1] == 0x34 || this->signals[1] == 0x31 || this->signals[1] == 0x33)){
                             threshold = 60000;//Time threshold
                             for(j=0;j<SIGNAL_HISTORY_SIZE;j++){
                                 //If the delay is already greater than our threshold, it's not a double hit
@@ -267,19 +271,9 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                                 midibuffer[j] = this->signals[j];
                             }
                             //Substitution
-                            if(this->signals[1] == 0x2F || this->signals[1] == 0x30){
+                            if(this->signals[1] == 0x1A || this->signals[1] == 0x34){
                                 midibuffer[1] = 0x33;
                                 midibuffer[4] = 0x33;
-                            }
-                            //If the on/off notes are not paired, we need to take whichever is "on" and make it the first
-                            //  Then "off" it with the second impulse
-                            if(midibuffer[1] != midibuffer[4]){
-                                //See if the first is an "on"
-                                if(midibuffer[2] > 0x00 && midibuffer[5] == 0x00){
-                                    //This means the first half is "on" and the second half is an off for another note...
-                                    //Set the second half to an off for this note
-                                    midibuffer[4] = midibuffer[1];
-                                }
                             }
                             //If we somehow got two velocity notes on the same signal, split them
                             if(midibuffer[5] > 0x00 && midibuffer[1] != 0xB9){
@@ -299,8 +293,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                                 sprintf(message, "Error writing to device\n");
                                 return -1;
                             }
-                            write(fd, midibuffer2, 5);midibuffer[4] = 0x00;
-                            midibuffer[5] = 0x00;
+                            write(fd, midibuffer2, 5);
                         }
                     //}
                     if(sending || (this->signals[1] == 0x04)){
