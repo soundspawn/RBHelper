@@ -1,5 +1,7 @@
 #Eclipse Settings
 .settings/*
+.cproject
+.project
 
 #Release Folder
 Release/*
