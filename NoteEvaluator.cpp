@@ -151,16 +151,10 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
     static unsigned long long threshold = 0;
     static unsigned int j;
     unsigned char midibuffer[7];
-    unsigned char midibuffer2[7];
     static unsigned long long temp = 0;
-    unsigned char nextSig = 0;
 
     while (1) {
-        if (nextSig > 0 || this->get_input(ch) == 1) {
-            if(nextSig > 0){
-                ch = nextSig;
-                nextSig = 0x00;
-            }
+        if (this->get_input(ch) == 1) {
             if (ch != 0xf8 && ch != 0xfe) {
                 //Reset
                 if (iBitCount == 0) {
@@ -168,23 +162,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                         sprintf(message, "Error getting time\n");
                         return -1;
                     }
-                    iColumnWidth = 6;
-                }
-                if (iBitCount == 1) {
-                    //Hi Hat depressed (single 99 04 7F message)
-                    if (ch == 0x04) {
-                        iColumnWidth = 3;
-                    }
-                }
-                if ((iBitCount == 0 || iBitCount == 3) && ch != 0x99){
-                    nextSig = ch;
-                    ch = 0x99;
-                }
-                if(iBitCount == 4 && ch == 0x99){
-                    continue;
-                }
-                if((iBitCount == 1 || iBitCount == 4) && ch == 0x90){
-                    continue;
+                    iColumnWidth = 3;
                 }
                 if (this->verbose) {
                     if (iBitCount == 0) {
@@ -193,10 +171,27 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                     sprintf(msg_buffer, "%02x ", ch);
                     strcat(verb_buffer, msg_buffer);
                 }
+                if(iBitCount == 0 && ch != 0x99){
+                    iBitCount++;
+                    this->signals[0] = 0x99;
+                    if(ch == 0x90){
+                        continue;
+                    }
+                }
                 this->signals[iBitCount] = ch;
                 iBitCount = (iBitCount + 1) % iColumnWidth;
                 if (iBitCount == 0) {
                     //Pass the signal for processing
+                    if(this->signals[2] == 00){
+                        continue;
+                    }
+                    //Substitution
+                    if(this->signals[1] == 0x1A || this->signals[1] == 0x34){
+                        this->signals[1] = 0x33;
+                    }
+                    this->signals[3] = this->signals[0];
+                    this->signals[4] = this->signals[1];
+                    this->signals[5] = 0x00;
                     sending = 1;
                     //if (this->fd > 0) {
                         delay = (this->iCurrentNoteTime - this->iLastNoteTime) / 1000;
@@ -209,7 +204,7 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                             sending = 0;
                         }
                         //Crash Sensitivity
-                        if(this->signals[1] == 0x31 && this->signals[2] < 0x38){
+                        if(this->signals[1] == 0x31 && this->signals[2] < 0x37){
                             sending = 0;
                         }
                         //Splash Sensitivity
@@ -222,6 +217,10 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                         }
                         //Ride double hits
                         if(this->signals[1] == 0x33 && this->signals[2] < 55){
+                            sending = 0;
+                        }
+                        //Kick Doubles
+                        if(this->signals[1] == 0x24 && this->signals[2] < 0x20){
                             sending = 0;
                         }
                         //Cymbal/hihat Doubles
@@ -270,30 +269,10 @@ int NoteEvaluator::process_input_as_loop(char*& message) {
                             for(j=0;j<6;j++){
                                 midibuffer[j] = this->signals[j];
                             }
-                            //Substitution
-                            if(this->signals[1] == 0x1A || this->signals[1] == 0x34){
-                                midibuffer[1] = 0x33;
-                                midibuffer[4] = 0x33;
-                            }
-                            //If we somehow got two velocity notes on the same signal, split them
-                            if(midibuffer[5] > 0x00 && midibuffer[1] != 0xB9){
-                                midibuffer2[0] = midibuffer[3];
-                                midibuffer2[1] = midibuffer[4];
-                                midibuffer2[2] = midibuffer[5];
-                                midibuffer2[3] = 0x00;
-                                midibuffer2[4] = 0x00;
-                                midibuffer2[5] = 0x00;
-                                midibuffer[3] = 0x00;
-                                midibuffer[4] = 0x00;
-                                midibuffer[5] = 0x00;
-                            }else{
-                                memset(midibuffer2,0,7);
-                            }
                             if (write(fd, midibuffer, 5) == -1) {
                                 sprintf(message, "Error writing to device\n");
                                 return -1;
                             }
-                            write(fd, midibuffer2, 5);
                         }
                     //}
                     if(sending || (this->signals[1] == 0x04)){
