@@ -17,6 +17,12 @@ Effectively this program takes in all midi information and uses recent informati
 * A midi controller for your game device
 * Linux(?)  Never tested with Windows or Mac.
 
+###Compiling
+* Need a /dev/midi device.  I used "sudo apt-get install midisport-firmware"
+* Need a few support files, asoundlib.h - "sudo apt-get install libasound2-dev"
+* And need timer.h - "sudo apt-get install libc6-dev"
+* Compile with g++ -lrt main.cpp
+
 ###Sample set up
 * [Simmons SD7PK](http://www.amazon.com/Simmons-SD7PK-Electronic-Drum-Set/dp/B003XXM8R4)
 * [M-Audio Midisport Uno](http://www.amazon.com/M-Audio-Midisport-Uno-MIDI-Interface/dp/B00007JRBM)
